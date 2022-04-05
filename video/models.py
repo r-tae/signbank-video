@@ -92,10 +92,9 @@ class TaggedVideoStorage(S3Boto3Storage):
     """Implement our shadowing video storage system"""
 
     def __init__(self, location=settings.MEDIA_ROOT, base_url=settings.MEDIA_URL):
-        super(TaggedVideoStorage, self).__init__()
-        self.location = location
-        self.base_url = base_url
-        self.settings = settings
+        super(TaggedVideoStorage, self).__init__(settings)
+        location = location
+        base_url = base_url
 
     def get_valid_name(self, name):
         """Generate a valid name, we use directories named for the
