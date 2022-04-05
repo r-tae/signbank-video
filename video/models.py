@@ -2,7 +2,7 @@ import os
 
 from django.db import models, transaction, IntegrityError
 from django.conf import settings
-from storages.backends.s3boto3 import S3Boto3Storage
+from django.core.files.storage import FileSystemStorage
 
 from .convertvideo import extract_frame, convert_video
 
@@ -88,7 +88,7 @@ class TaggedVideo(models.Model):
         return "%s/%s" % (self.category, self.tag)
 
 
-class TaggedVideoStorage(S3Boto3Storage):
+class TaggedVideoStorage(FileSystemStorage):
     """Implement our shadowing video storage system"""
 
     def __init__(self, location=settings.MEDIA_ROOT, base_url=settings.MEDIA_URL):
