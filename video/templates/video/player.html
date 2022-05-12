@@ -3,7 +3,6 @@
     <video id='{{id|slugify}}' class="video-js vjs-default-skin"
       {% if width > 150 %}controls{% endif %} {# no room for controls on small videos #}
       preload="auto" autoplay muted width="{{width}}" height="{{height}}"
-      poster="{{video.poster_url}}"
       data-setup='{
           "playbackRates": [0.25, 0.5, 1.0, 1.5],
           "plugins": {"looper": true},

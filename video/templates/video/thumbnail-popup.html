@@ -2,7 +2,8 @@
 <!-- Link to trigger modal -->
 <div class="video-thumbnail">
     <a href="#"  data-toggle="modal" data-target="#{{id}}">
-            <img src="{{video.poster_url}}" width=150px alt="Sign Video thumbnail">
+            <video src="{{video.get_absolute_url}}" preload="metadata" width=150px alt="Sign Video thumbnail">
+            </video>
     </a>
 </div>
 
@@ -18,7 +19,6 @@
             style="margin: auto"
                 controls
                 preload="{{preload}}" muted  width="{{width}}" height="{{height}}"
-                poster="{{video.poster_url}}"
                 data-setup='{
                     "playbackRates": [0.25, 0.5, 1.0, 1.5],
                     "plugins": {"looper": true},

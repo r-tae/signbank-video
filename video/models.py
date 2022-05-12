@@ -2,7 +2,7 @@ import os
 
 from django.db import models, transaction, IntegrityError
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
+from storages.backends.s3boto3 import S3Boto3Storage
 
 from .convertvideo import extract_frame, convert_video
 
@@ -88,30 +88,33 @@ class TaggedVideo(models.Model):
         return "%s/%s" % (self.category, self.tag)
 
 
-class TaggedVideoStorage(FileSystemStorage):
+class TaggedVideoStorage(S3Boto3Storage):
     """Implement our shadowing video storage system"""
 
-    def __init__(self, location=settings.MEDIA_ROOT, base_url=settings.MEDIA_URL):
-        super(TaggedVideoStorage, self).__init__(location, base_url)
+    bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+    location = settings.MEDIA_ROOT
+    # def __init__(self, location=settings.MEDIA_ROOT, base_url=settings.MEDIA_URL):
+    #     super(TaggedVideoStorage, self).__init__(location, base_url)
 
-    def get_valid_name(self, name):
-        """Generate a valid name, we use directories named for the
-        first two digits in the filename to partition the videos"""
-        targetdir, basename = os.path.split(name)
-        if '-' in basename:
-            category, tag = basename.split('-', maxsplit=1)  # basename is eg. Gloss-1234.mp4
-        else:
-            category, tag = 'Base',  basename
-        # we make a dirname from the first two letters of the tag
-        # make it 00 if the basename is two digits or less
-        if len(tag) <= 6:
-            dirname = '00'
-        else:
-            dirname = str(tag)[:2]
+# TODO: afaik doesn't exist for s3boto3storage (although file and azure both use it)
+    # def get_valid_name(self, name):
+    #     """Generate a valid name, we use directories named for the
+    #     first two digits in the filename to partition the videos"""
+    #     targetdir, basename = os.path.split(name)
+    #     if '-' in basename:
+    #         category, tag = basename.split('-', maxsplit=1)  # basename is eg. Gloss-1234.mp4
+    #     else:
+    #         category, tag = 'Base',  basename
+    #     # we make a dirname from the first two letters of the tag
+    #     # make it 00 if the basename is two digits or less
+    #     if len(tag) <= 6:
+    #         dirname = '00'
+    #     else:
+    #         dirname = str(tag)[:2]
 
-        path = os.path.join(dirname, str(tag))
-        result = os.path.join(targetdir, category, path)
-        return result
+    #     path = os.path.join(dirname, str(tag))
+    #     result = os.path.join(targetdir, category, path)
+    #     return result
 
 
 class Video(models.Model):
@@ -145,6 +148,7 @@ class Video(models.Model):
     def poster_url(self):
         """Return the URL of the poster image for this video"""
         # generate the poster image if needed
+        return ""
         path = self.__poster_path()
         # splitext works on urls too!
         vidurl, ext = os.path.splitext(self.videofile.url)
@@ -154,9 +158,9 @@ class Video(models.Model):
     def delete_files(self):
         """Delete the files associated with this object"""
         try:
-            os.unlink(self.videofile.path)
-            poster_path = self.__poster_path(create=False)
-            if poster_path:
-                os.unlink(poster_path)
+            self.videofile.delete(save=False)
+            # poster_path = self.__poster_path(create=False)
+            # if poster_path:
+            #     os.unlink(poster_path)
         except:
             pass
